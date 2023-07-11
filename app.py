@@ -1,7 +1,7 @@
 import streamlit as st
 from langchain.chains.question_answering import load_qa_chain
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores.faiss import FaissVectorStore
+import faiss
 from langchain.huggingfacehub import HuggingFaceHub
 import pickle
 import os
@@ -47,11 +47,14 @@ def main():
             my_bar_text.text(f"{progress_text} {percent_complete + 1}%")
 
         # Perform similarity search
-        vector_store = FaissVectorStore()
-        vector_store.load_from_path("path_to_vector_store")  # Replace with the actual path
-        vectors = vector_store.get_vectors()
+        index = faiss.IndexFlatIP(768)  # Assuming the vector size is 768, adjust if necessary
+        index_path = "path_to_index"  # Replace with the actual path to the index
+        index = faiss.read_index(index_path)
         k = 5  # The number of nearest neighbors to search for
-        docs, _ = vectors.similarity_search(input_text, k=k)
+        _, indices = index.search(embeddings.encode([input_text]), k)
+
+        # Load documents from the model
+        docs = [model.get_document_by_id(doc_id) for doc_id in indices.flatten()]
 
         # Generate answer using the chain
         generated_answer = chain.run(input_documents=docs, question=input_text)
