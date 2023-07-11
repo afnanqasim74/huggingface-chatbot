@@ -1,7 +1,7 @@
 """"""
 from langchain.chains.question_answering import load_qa_chain
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores.faiss import FaissVectorStore
+import faiss
 from langchain.huggingfacehub import HuggingFaceHub
 import os
 
@@ -46,9 +46,10 @@ def main():
         # Perform similarity search
         vector = embeddings.encode([input_text])  # Assuming you have the embeddings object initialized
         k = 5  # The number of nearest neighbors to search for
-        distances = faiss.IndexFlatIP().search(vector, k)
-        indices = distances[1][0]
-        docs = [d.get_document_by_id(doc_id) for doc_id in indices]
+        index = faiss.IndexFlatIP(vector.shape[1])
+        index.add(vector)
+        _, indices = index.search(vector, k)
+        docs = [d.get_document_by_id(doc_id) for doc_id in indices[0]]
 
         # Generate answer using the chain
         generated_answer = c.run(input_documents=docs, question=input_text)
