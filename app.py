@@ -1,6 +1,5 @@
 from langchain.chains.question_answering import load_qa_chain
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores.faiss import FaissVectorStore
 import faiss
 import os
 
@@ -24,8 +23,8 @@ def main():
     d = model()
 
     # Load the chain
-    llm = HuggingFaceEmbeddings(model_name="google/flan-t5-xxl", model_kwargs={"temperature": 1, "max_length": 512})
-    c = load_qa_chain(llm, chain_type="stuff")
+    embeddings = HuggingFaceEmbeddings(model_name="google/flan-t5-xxl", model_kwargs={"temperature": 1, "max_length": 512})
+    c = load_qa_chain(embeddings, chain_type="stuff")
 
     # User input
     input_text = st.text_input("Enter the starting sentence")
@@ -42,11 +41,11 @@ def main():
             my_bar_text.text(f"{progress_text} {percent_complete + 1}%")
 
         # Perform similarity search
-        vector = embeddings.encode([input_text])  # Assuming you have the embeddings object initialized
+        vector = embeddings.encode([input_text])
         k = 5  # The number of nearest neighbors to search for
         index = faiss.IndexFlatIP(vector.shape[1])
         index.add(vector)
-        _, indices = index.search(vector, k)
+        distances, indices = index.search(vector, k)
         docs = [d.get_document_by_id(doc_id) for doc_id in indices[0]]
 
         # Generate answer using the chain
