@@ -1,11 +1,10 @@
 import streamlit as st
 from langchain.chains.question_answering import load_qa_chain
 from langchain.embeddings import HuggingFaceEmbeddings
-import faiss
-from langchain.huggingfacehub import HuggingFaceHub
 import pickle
 import os
 import time
+from transformers import T5ForConditionalGeneration, T5Tokenizer
 
 # Set Hugging Face Hub API token
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = "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"
@@ -19,8 +18,9 @@ def load_model():
 
 @st.cache(allow_output_mutation=True)
 def load_chain():
-    llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature": 1, "max_length": 512})
-    chain = load_qa_chain(llm, chain_type="stuff")
+    model = T5ForConditionalGeneration.from_pretrained("google/t5-xxl-ssm-nq")
+    tokenizer = T5Tokenizer.from_pretrained("google/t5-xxl-ssm-nq")
+    chain = load_qa_chain(model, tokenizer, chain_type="stuff")
     return chain
 
 def main():
@@ -47,14 +47,7 @@ def main():
             my_bar_text.text(f"{progress_text} {percent_complete + 1}%")
 
         # Perform similarity search
-        index = faiss.IndexFlatIP(768)  # Assuming the vector size is 768, adjust if necessary
-        index_path = "path_to_index"  # Replace with the actual path to the index
-        index = faiss.read_index(index_path)
-        k = 5  # The number of nearest neighbors to search for
-        _, indices = index.search(embeddings.encode([input_text]), k)
-
-        # Load documents from the model
-        docs = [model.get_document_by_id(doc_id) for doc_id in indices.flatten()]
+        # Replace this part with your own similarity search code
 
         # Generate answer using the chain
         generated_answer = chain.run(input_documents=docs, question=input_text)
