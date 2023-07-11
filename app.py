@@ -1,8 +1,7 @@
-""""""
 from langchain.chains.question_answering import load_qa_chain
 from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores.faiss import FaissVectorStore
 import faiss
-from langchain.huggingfacehub import HuggingFaceHub
 import os
 
 import streamlit as st
@@ -25,8 +24,7 @@ def main():
     d = model()
 
     # Load the chain
-    os.environ["HUGGINGFACEHUB_API_TOKEN"] = "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"
-    llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature": 1, "max_length": 512})
+    llm = HuggingFaceEmbeddings(model_name="google/flan-t5-xxl", model_kwargs={"temperature": 1, "max_length": 512})
     c = load_qa_chain(llm, chain_type="stuff")
 
     # User input
