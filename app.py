@@ -42,7 +42,7 @@ def main():
 
         # Perform similarity search
         vector = embeddings.encode([input_text])
-        k = 2  # The number of nearest neighbors to search for
+        k = 1  # The number of nearest neighbors to search for
         index = faiss.IndexFlatIP(vector.shape[1])
         index.add(vector)
         distances, indices = index.search(vector, k)
