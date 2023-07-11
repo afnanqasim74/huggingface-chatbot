@@ -1,0 +1,2 @@
+langchain==0.0.226
+langchainplus-sdk==0.0.20
