@@ -1,5 +1,5 @@
 from langchain.chains.question_answering import load_qa_chain
-from langchain.embeddings import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 import faiss
 import os
 
@@ -23,7 +23,7 @@ def main():
     d = model()
 
     # Load the chain
-    embeddings = HuggingFaceEmbeddings(model_name="google/flan-t5-xxl", model_kwargs={"temperature": 1, "max_length": 512})
+    embeddings = SentenceTransformer("google/flan-t5-xxl")
     c = load_qa_chain(embeddings, chain_type="stuff")
 
     # User input
