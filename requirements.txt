@@ -3,4 +3,4 @@ langchainplus-sdk==0.0.20
 huggingface-hub==0.15.1
 sentence-transformers==2.2.2
 sentencepiece==0.1.99
-faiss-cpu==1.7.4
+faiss-cpu==1.5.3
